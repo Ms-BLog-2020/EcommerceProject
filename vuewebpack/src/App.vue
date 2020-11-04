@@ -1,7 +1,5 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <HelloWorld/>
     <router-view></router-view>
   </div>
 </template>
@@ -11,6 +9,9 @@ import HelloWorld from './components/HelloWorld'
 
 export default {
   name: 'App',
+  components: {
+    HelloWorld
+  },
   created(){ //取得遠端資料
     const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`; //路徑可能會更改所以這樣寫不太好 >> 去config dev
     //API伺服器路徑
@@ -24,5 +25,5 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~bootstrap/scss/bootstrap";
+@import "./assets/all";
 </style>
