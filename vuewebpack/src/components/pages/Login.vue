@@ -1,11 +1,11 @@
 <template>
   <div>
-   <form class="form-signin">
+   <form class="form-signin" @submit.prevent="signin">
       <h1 class="h3 mb-3 font-weight-normal">請先登入</h1>
       <label for="inputEmail" class="sr-only">Email address</label>
-      <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+      <input type="email" id="inputEmail" v-model="user.username" class="form-control" placeholder="Email address" required autofocus>
       <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+      <input type="password" id="inputPassword" v-model="user.password" class="form-control" placeholder="Password" required>
       <div class="checkbox mb-3">
         <label>
           <input type="checkbox" value="remember-me"> Remember me
@@ -22,9 +22,28 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      user: {
+          username: '',
+          password: ''
+      }
     }
-  }
+  },
+  methods: {
+      signin(){
+        const api = `${process.env.APIPATH}/admin/signin`; 
+        const vm = this;
+        this.$http.post(api, vm.user).then((response) => { //post>>把用戶的資料傳進來
+        console.log(response.data);
+        if (response.data.success){
+          const token = response.data.token; //寫入cookie前先把值取出來(token 和 expired的值) (登入後打開Network 會有token 和 expired這兩個值)
+          const expired = response.data.expired;
+          console.log(token, expired);//把這兩個值寫到cookie裡面
+          document.cookie = `someCookieName=${token}; expires=${new Date(expired)};`; //存取、寫入cookie
+            vm.$router.push('/admin/products');
+        }
+      });
+    }
+    }
 }
 </script>
 
