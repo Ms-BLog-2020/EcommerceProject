@@ -1,5 +1,6 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"></loading>
        <div class="text-right mt-4">
         <button class="btn btn-primary" @click="openModal(true)">建立新的產品</button> 
        </div>
@@ -54,7 +55,7 @@
                     </div>
                     <div class="form-group">
                     <label for="customFile">或 上傳圖片
-                        <i class="fas fa-spinner fa-spin"></i>
+                        <i class="fas fa-spinner fa-spin" v-if="status.fileUploading"></i>
                     </label>
                     <input type="file" id="customFile" class="form-control"
                         ref="files" @change="uploadFile">
@@ -159,7 +160,11 @@ export default {
         return{
             products: [], //新增的資料都會存到products
             tempProduct: {}, //要送出的新產品欄位內容 欄位名稱對應api設定的欄位標題
-            isNew: false
+            isNew: false,
+            isLoading: false, //預設為停下來的狀態
+            status: { //宣告變數來使用loading
+                fileUploading: false, //需要到上方綁定icon
+            }
         }
     },
     methods: {
@@ -167,8 +172,10 @@ export default {
             const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`; 
             const vm = this; //確保資料存到vm裡面
             console.log(process.env.APIPATH,process.env.CUSTOMPATH);
+            vm.isLoading = true;
             this.$http.get(api).then((response) => {
             console.log(response.data);
+            vm.isLoading = false;
             vm.products = response.data.products; //可以用Vue檢查一下資料有沒有get到
             })
         },
@@ -189,14 +196,19 @@ export default {
             const formData = new FormData();
             formData.append('file-to-upload',uploadedFile); //用append新增欄位file-to-upload 上傳檔案uploadFile
             const  api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`;
+            vm.status.fileUploading = true;
             this.$http.post(url, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             }).then((response)=>{
                 console.log(response.data);
+                vm.status.fileUploading = false;
                 if (response.data.success){
                     vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl); //在vm.tempProduct強制寫入imageUrl這個欄位和response.data.imageUrl這個路徑
+                }else{
+                     this.$but.$emit('message:push',response.data.message,'danger');
+
                 }
             })
         },

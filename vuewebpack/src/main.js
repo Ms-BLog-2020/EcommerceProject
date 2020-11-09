@@ -5,12 +5,18 @@ import Vue from 'vue';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
 import "bootstrap";
+import Loading from 'vue-loading-overlay'; //必須要被啟用
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 import App from './App';
-import router from './router'
+import router from './router';
+import './router/bus';
+
 
 Vue.config.productionTip = false;
-Vue.use(VueAxios, axios)
+Vue.use(VueAxios, axios);
+
+Vue.component('Loading', Loading);//此啟用方式為全域 不用到個別元件啟用
 
 axios.defaults.withCredentials = true;
 
