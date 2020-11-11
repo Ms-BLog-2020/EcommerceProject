@@ -22,7 +22,7 @@
                     </div>
                     <div class="card-footer d-flex">
                     <button type="button" class="btn btn-outline-secondary btn-sm" @click="getProduct(item.id)">
-                        <i class="fas fa-spinner fa-spin"  v-if="status.loadingItem === item.id"></i>
+                        <i class="fas fa-spinner fa-spin"  v-if="status.loadingItem === product.id"></i>
                         查看更多
                     </button>
                     <button type="button" class="btn btn-outline-danger btn-sm ml-auto" @click="addtoCart(item.id)">
@@ -59,7 +59,8 @@
                     元
                   </div>
                   <button type="button" class="btn btn-primary" @click="addtoCart(product.id, product.num)">
-                    <i class="fas fa-spinner fa-spin"  v-if="status.loadingItem === item.id">加到購物車</i>
+                    <i class="fas fa-spinner fa-spin"  v-if="status.loadingItem === product.id"></i>
+                    加到購物車
                   </button>
                 </div>
                 </div>
@@ -85,7 +86,7 @@ export default {
   methods: {
     getProducts() {
       const vm = this;
-      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products/all`;
       vm.isLoading = true;
       this.$http.get(url).then((response) => {
         vm.products = response.data.products;
