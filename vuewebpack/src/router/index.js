@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import Login from '@/components/pages/Login';
 import Dashboard02 from '@/components/Dashboard02';
 import Products from '@/components/pages/Products';
+import CustomerOrders from '@/components/pages/CustomerOrders';
 
 
 Vue.use(VueRouter)
@@ -14,11 +15,6 @@ export default new VueRouter({
             path: '*',
             redirect: '/login', //避免用戶去不存在的頁面
         },
-        // {
-        //     name: '首頁',
-        //     path: '/',
-        //     component: Home,
-        // },
         {
             name: 'Login',
             path: '/login',
@@ -34,6 +30,18 @@ export default new VueRouter({
                     path: 'products',
                     component: Products,
                     meta: { requiresAuth: true } //確保進入頁面前有經過驗證
+                },
+            ]
+        },
+        {
+            name: 'Dashboard02',
+            path: '/',
+            component: Dashboard02,
+            children: [
+                {
+                    name: 'CustomerOrders',
+                    path: 'customer_order',
+                    component: CustomerOrders,
                 },
             ]
         },

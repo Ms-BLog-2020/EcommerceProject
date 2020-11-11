@@ -19,8 +19,8 @@
                 <tr v-for="(item, key) in products" :key="item.id">
                     <td>{{item.category}}</td>
                     <td>{{item.title}}</td>
-                    <td class="text-right">{{item.origin_price}}</td>
-                    <td class="text-right">{{item.price}}</td>
+                    <td class="text-right">{{item.origin_price | currency }}</td>
+                    <td class="text-right">{{item.price | currency }}</td>
                     <td>
                      <span v-if="item.is_enabled" class="text-success">啟用</span>
                      <span v-else>未啟用</span>
@@ -32,6 +32,26 @@
             </tbody>
 
        </table>
+       <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item" :class="{'disabled':!pagination.has_pre}">
+                <a class="page-link" href="#" aria-label="Previous" @click.prevent="getProducts(pagination.current_page - 1)">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                </li>
+                <li class="page-item" v-for="page in pagination.total_pages" :key="page" 
+                :class="{'active':pagination.total_pages===page}"
+                @click.prevent="getProducts(page)">
+                <a class="page-link" href="#">{{page}}</a></li>
+                <li class="page-item" :class="{'disabled':!pagination.has_next}">
+                <a class="page-link" href="#" aria-label="Next" @click.prevent="getProducts(pagination.current_page + 1)">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+                </li>
+            </ul>
+        </nav>
        <!-- Modal -->
        <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
   aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -149,6 +169,7 @@
             </div>
         </div>
       </div>
+      
     </div>  
 </template>
 
@@ -164,12 +185,13 @@ export default {
             isLoading: false, //預設為停下來的狀態
             status: { //宣告變數來使用loading
                 fileUploading: false, //需要到上方綁定icon
-            }
+            },
+            pagination: {}, //去console看它的結構資料就知道他是個物件
         }
     },
     methods: {
-        getProducts(){ //取得遠端資料的方法 //把Products存到宣告的products裡面
-            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`; 
+        getProducts(page=1){ //取得遠端資料的方法 //把Products存到宣告的products裡面 //將page傳進來 >> getProducts(page=1) 預設值帶第一頁進來
+            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products?page=${page}`; //${page} 設定變數
             const vm = this; //確保資料存到vm裡面
             console.log(process.env.APIPATH,process.env.CUSTOMPATH);
             vm.isLoading = true;
@@ -177,6 +199,7 @@ export default {
             console.log(response.data);
             vm.isLoading = false;
             vm.products = response.data.products; //可以用Vue檢查一下資料有沒有get到
+            vm.pagination = response.data.pagination;
             })
         },
         openModal(isNew, item){ //決定這份資歷是新的還是舊的
@@ -197,7 +220,7 @@ export default {
             formData.append('file-to-upload',uploadedFile); //用append新增欄位file-to-upload 上傳檔案uploadFile
             const  api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`;
             vm.status.fileUploading = true;
-            this.$http.post(url, formData, {
+            this.$http.post(api, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -207,7 +230,7 @@ export default {
                 if (response.data.success){
                     vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl); //在vm.tempProduct強制寫入imageUrl這個欄位和response.data.imageUrl這個路徑
                 }else{
-                     this.$but.$emit('message:push',response.data.message,'danger');
+                     this.$bus.$emit('message:push',response.data.message,'danger');
 
                 }
             })
@@ -239,6 +262,6 @@ export default {
         this.getProducts();
     }
 }
-</script>>
+</script>
 
 <div>
