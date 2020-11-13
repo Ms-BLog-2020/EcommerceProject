@@ -33,6 +33,70 @@
                 </div>
             </div>
         </div>
+        <table class="table mt-4">
+         <thead>
+          <tr>
+            <th></th>
+            <th class="align-middle">購買商品</th>
+            <th class="align-middle">數量</th>
+            <th class="align-middle text-right">價錢</th>
+          </tr>
+         </thead>
+            <tbody>
+                <tr v-for="item in cart.carts" :key="item.id" v-if="cart.carts">
+                  <button type="button" class="btn btn-outline-danger btn-sm mt-4" @click="deleteCart(item.id)">
+                    <td><i class="fas fa-trash-alt"></i></td>
+                  </button>
+                  <td class="align-middle">
+                    {{ item.product.title }}
+                    <!-- <div class="text-success" v-if="item.coupon">
+                      已套用優惠券
+                    </div> -->
+                  </td>
+                  <td class="align-middle">{{ item.qty }}/{{ item.product.unit }}</td>
+                  <td class="align-middle text-right">{{ item.final_total }}</td> 
+                </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                  <td class="text-right">總計{{cart.total}}</td>
+              </tr>
+            </tfoot>
+        </table>
+        <!-- 優化表單 -->
+        <table class="table">
+          <thead>
+            <th></th>
+            <th>品名</th>
+            <th>數量</th>
+            <th>單價</th>
+          </thead>
+          <tbody>
+            <tr v-for="item in cart.carts">
+              <td class="align-middle">
+                <button type="button" class="btn btn-outline-danger btn-sm">
+                  <i class="far fa-trash-alt"></i>
+                </button>
+              </td>
+              <td class="align-middle">
+                {{ item.product.title }}
+                <!-- <div class="text-success" v-if="item.coupon">
+                  已套用優惠券
+                </div> -->
+              </td>
+              <td class="align-middle">{{ item.qty }}/{{ item.product.unit }}</td>
+              <td class="align-middle text-right">{{ item.final_total }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right">總計</td>
+              <td class="text-right">{{ cart.total }}</td>
+            </tr>
+          </tfoot>
+        </table>
+       
+
          <!-- Modal -->
         <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -66,6 +130,45 @@
                 </div>
             </div>
         </div>
+        <!-- 客戶表單填寫 -->
+        <div class="my-5 row justify-content-center">
+          <form class="col-md-6" @submit.prevent="createOrder">
+            <div class="form-group">
+              <label for="useremail">Email</label>
+              <input type="email" class="form-control" name="email" id="useremail"
+                v-model="form.user.email" placeholder="請輸入 Email" required v-validate="'required|email'">
+              <span class="text-danger" v-if="errors.has('email')">{{errors.first('email')}}</span>
+            </div>
+          
+            <div class="form-group">
+              <label for="username">收件人姓名</label>
+              <input type="text" class="form-control" name="name" id="username"
+                v-model="form.user.name" placeholder="輸入姓名" v-validate="'required'"
+                :class="{'is-invalid':errors.has('name')}">
+              <span class="text-danger" v-if="errors.has('name')">必須輸入姓名</span>
+            </div>
+          
+            <div class="form-group">
+              <label for="usertel">收件人電話</label>
+              <input type="tel" class="form-control" id="usertel" v-model="form.user.tel" placeholder="請輸入電話">
+            </div>
+          
+            <div class="form-group">
+              <label for="useraddress">收件人地址</label>
+              <input type="text" class="form-control" name="address" id="useraddress" v-model="form.user.address"
+                placeholder="請輸入地址">
+              <span class="text-danger">地址欄位不得留空</span>
+            </div>
+          
+            <div class="form-group">
+              <label for="comment">留言</label>
+              <textarea name="" id="comment" class="form-control" cols="30" rows="10" v-model="form.message"></textarea>
+            </div>
+            <div class="text-right">
+              <button class="btn btn-danger">送出訂單</button>
+            </div>
+          </form>
+        </div>
     </div>
 </template>
 
@@ -80,6 +183,16 @@ export default {
       isLoading: false,
       status: {
         loadingItem: '', //存放產品id
+      },
+      cart: {},
+      form: { //結構直接參考api設定的資料結構
+        user: {
+          name: '',
+          email: '',
+          tel: '',
+          address: '',
+        },
+        message: ''
       }
     }
   },
@@ -127,11 +240,41 @@ export default {
       const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart`;
       vm.isLoading = true;
       this.$http.get(url).then((response) => {
-        vm.products = response.data.products;
+        vm.cart= response.data.data;
         console.log(response);
         vm.isLoading = false;
       });
-    }
+    },
+    deleteCart(id){
+      const vm = this;
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart/${id}`;
+      // vm.isLoading = true;
+      this.$http.delete(url).then((response) => {
+         vm.getCart(); //這部我會忘記做 >> 刪除後重新取得購物車
+        console.log(response);
+        // vm.isLoading = false;
+    });
+    },
+    createOrder(){ //到上方綁定 >> @submit.prevent="createOrder"
+      const vm = this;
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/order`;
+      const order = vm.form; //這部會忘記做
+      // vm.isLoading = true;
+      this.$validator.validate().then((result)=>{
+        if (result){
+            this.$http.post(url,{data:order}).then((response) => {
+            // vm.getCart(); 
+            console.log('訂單已建立',response);
+            // vm.isLoading = false;
+          })
+          }
+          else{
+            console.log('欄位不完整');
+          }
+      
+      
+    });
+    },
   },
   created() {
     this.getProducts();
