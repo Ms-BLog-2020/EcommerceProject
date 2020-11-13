@@ -7,8 +7,26 @@ import VueAxios from 'vue-axios';
 import "bootstrap";
 import Loading from 'vue-loading-overlay'; //必須要被啟用
 import 'vue-loading-overlay/dist/vue-loading.css';
-import VeeValidate, { validate } from 'vee-validate';
-import zhTWValidate from 'vee-validate/dist/locale/zh_TW';
+import { ValidationObserver, ValidationProvider, extend, localize, configure } from 'vee-validate';
+import TW from 'vee-validate/dist/locale/zh_TW.json'
+import * as rules from 'vee-validate/dist/rules';
+
+Object.keys(rules).forEach((rule) => {
+  extend(rule, rules[rule]);
+});
+ 
+localize('zh_TW', TW);
+ 
+Vue.component('ValidationObserver', ValidationObserver)
+Vue.component('ValidationProvider', ValidationProvider)
+ 
+configure({
+  classes: {
+    valid: 'is-valid',
+    invalid: 'is-invalid'
+  }
+});
+
 
 import App from './App';
 import router from './router';
@@ -17,8 +35,7 @@ import currencyFilter from './filters/currency';
 
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
-Vue.use(VeeValidate);
-Validate.Validator.localize('zh_TW',zhTWValidate)
+
 
 Vue.component('Loading', Loading);//此啟用方式為全域 不用到個別元件啟用
 Vue.filter('currency', currencyFilter); //自定義的名稱, import的名稱

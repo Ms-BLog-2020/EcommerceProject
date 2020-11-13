@@ -148,25 +148,6 @@
               <span class="text-danger" v-if="errors.has('name')">必須輸入姓名</span>
             </div>
           
-            <div class="form-group">
-              <label for="usertel">收件人電話</label>
-              <input type="tel" class="form-control" id="usertel" v-model="form.user.tel" placeholder="請輸入電話">
-            </div>
-          
-            <div class="form-group">
-              <label for="useraddress">收件人地址</label>
-              <input type="text" class="form-control" name="address" id="useraddress" v-model="form.user.address"
-                placeholder="請輸入地址">
-              <span class="text-danger">地址欄位不得留空</span>
-            </div>
-          
-            <div class="form-group">
-              <label for="comment">留言</label>
-              <textarea name="" id="comment" class="form-control" cols="30" rows="10" v-model="form.message"></textarea>
-            </div>
-            <div class="text-right">
-              <button class="btn btn-danger">送出訂單</button>
-            </div>
           </form>
         </div>
     </div>
@@ -185,7 +166,7 @@ export default {
         loadingItem: '', //存放產品id
       },
       cart: {},
-      form: { //結構直接參考api設定的資料結構
+      form: { //結構直接參考api設定的資料結構 存放顧客填寫的個人資料
         user: {
           name: '',
           email: '',
@@ -276,7 +257,7 @@ export default {
     });
     },
   },
-  created() {
+  created() { //取得資料要在這邊設定
     this.getProducts();
     this.getCart(); //把購物車取得回來
   },
