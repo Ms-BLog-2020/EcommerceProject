@@ -74,7 +74,7 @@
           <tbody>
             <tr v-for="item in cart.carts">
               <td class="align-middle">
-                <button type="button" class="btn btn-outline-danger btn-sm">
+                <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteCart(item.id)">
                   <i class="far fa-trash-alt"></i>
                 </button>
               </td>
@@ -131,32 +131,69 @@
             </div>
         </div>
         <!-- 客戶表單填寫 -->
-        <div class="my-5 row justify-content-center">
-          <form class="col-md-6" @submit.prevent="createOrder">
-            <div class="form-group">
-              <label for="useremail">Email</label>
-              <input type="email" class="form-control" name="email" id="useremail"
-                v-model="form.user.email" placeholder="請輸入 Email" required v-validate="'required|email'">
-              <span class="text-danger" v-if="errors.has('email')">{{errors.first('email')}}</span>
-            </div>
-          
-            <div class="form-group">
-              <label for="username">收件人姓名</label>
-              <input type="text" class="form-control" name="name" id="username"
-                v-model="form.user.name" placeholder="輸入姓名" v-validate="'required'"
-                :class="{'is-invalid':errors.has('name')}">
-              <span class="text-danger" v-if="errors.has('name')">必須輸入姓名</span>
-            </div>
-          
-          </form>
+        <div class="container">
+          <ValidationObserver v-slot="{ invalid }">
+            <form @submit.prevent="createOrder">
+              <ValidationProvider rules="required|email" class="form-group" tag="div" v-slot="{ errors, classes, passed }">
+                <!-- 輸入框 -->
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" v-model="form.user.email"
+                      class="form-control" :class="classes">
+                <!-- 錯誤訊息 -->
+                <span class="invalid-feedback">{{ errors[0] }}</span>
+                <span v-if="passed" class="valid-feedback">Email 正確</span>
+              </ValidationProvider>
+              <button type="submit" class="btn btn-primary" :disabled="invalid">送出表單</button>
+            </form>
+          </ValidationObserver>
         </div>
+          
+        
     </div>
 </template>
 
 <script>
 import $ from 'jquery'; //載入modal
+import { ValidationProvider,ValidationObserver } from 'vee-validate'; //嘗試方式將這兩個元件置入
+
+
+
+// import { ValidationObserver, ValidationProvider, extend, localize, configure } from 'vee-validate';
+
+// Vue.component('ValidationProvider', VeeValidate.ValidationProvider);
+// Vue.component('ValidationObserver', VeeValidate.ValidationObserver);
+// // const app = new Vue({ el: '#app' })
+
+
+// const app = new Vue({
+//   el: '#app',
+//   data: {
+//     email: '',
+//     password: ''
+//   },
+//   methods: {
+//     submitForm() {
+//       console.log('送出表單')
+//     }
+//   },
+//   created() {
+//     console.log(this);
+//   }
+// });
+
+// VeeValidate.configure({
+//   classes: {
+//     valid: 'is-valid',
+//     invalid: 'is-invalid',
+//   }
+// });
+
+
 
 export default {
+  components: { //嘗試的方式 >> 將上方的validation-porvider改成ValidationProvider, validation-observer也是
+    ValidationProvider,ValidationObserver
+  },
   data() {
     return {
       products: [],
