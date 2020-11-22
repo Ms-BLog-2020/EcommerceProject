@@ -5,6 +5,8 @@ import Login from '@/components/pages/Login';
 import Dashboard02 from '@/components/Dashboard02';
 import Products from '@/components/pages/Products';
 import CustomerOrders from '@/components/pages/CustomerOrders';
+import CustomerCheckout from '@/components/pages/CustomerCheckout';
+
 
 
 Vue.use(VueRouter)
@@ -42,6 +44,11 @@ export default new VueRouter({
                     name: 'CustomerOrders',
                     path: 'customer_order',
                     component: CustomerOrders,
+                },
+                {
+                    name: 'CustomerCheckout',
+                    path: 'customer_checkout/:orderId',
+                    component: CustomerCheckout,
                 },
             ]
         },

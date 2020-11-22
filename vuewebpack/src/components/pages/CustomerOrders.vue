@@ -134,7 +134,7 @@
         <div class="container">
           <ValidationObserver v-slot="{ invalid }">
             <form @submit.prevent="createOrder">
-              <ValidationProvider rules="required|email" class="form-group" tag="div" v-slot="{ errors, classes, passed }">
+              <ValidationProvider rules="required|email" name="email" class="form-group" tag="div" v-slot="{ errors, classes, passed }">
                 <!-- 輸入框 -->
                 <label for="email">Email</label>
                 <input id="email" type="email" name="email" v-model="form.user.email"
@@ -142,7 +142,9 @@
                 <!-- 錯誤訊息 -->
                 <span class="invalid-feedback">{{ errors[0] }}</span>
                 <span v-if="passed" class="valid-feedback">Email 正確</span>
+               
               </ValidationProvider>
+              
               <button type="submit" class="btn btn-primary" :disabled="invalid">送出表單</button>
             </form>
           </ValidationObserver>
@@ -283,6 +285,9 @@ export default {
             this.$http.post(url,{data:order}).then((response) => {
             // vm.getCart(); 
             console.log('訂單已建立',response);
+            if (response.data.success){
+              vm.$router.push(`customer_checkout/${response.data.orderId}`)
+            }
             // vm.isLoading = false;
           })
           }
